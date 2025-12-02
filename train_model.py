@@ -11,24 +11,26 @@ from nes_py.wrappers import JoypadSpace
 import gym_super_mario_bros
 # 导入简化版的马里奥动作空间（减少动作数量，降低训练复杂度）
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from test_obs import make_env
 
-# 创建SuperMarioBros-v2版本的游戏环境
-env = gym_super_mario_bros.make('SuperMarioBros-v2')
-# 使用JoypadSpace包装环境，限制动作空间为SIMPLE_MOVEMENT（仅包含基本移动/跳跃动作）
-env = JoypadSpace(env, SIMPLE_MOVEMENT)
-# 灰度图
-env = GrayScaleObservation(env, keep_dim=True)
+def main():
 
-# 初始化PPO模型
-# 参数说明：
-# - CnnPolicy：使用卷积神经网络策略（适合处理图像类输入，如游戏画面）
-# - env：绑定的训练环境
-# - verbose=1：打印训练过程中的日志信息
-# - tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
-model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs")
+    # 马里奥环境预处理
+    env = make_env()
 
-# 开始训练模型，总共训练1000个时间步（timesteps）
-model.learn(total_timesteps=1000)
+    # 初始化PPO模型
+    # 参数说明：
+    # - CnnPolicy：使用卷积神经网络策略（适合处理图像类输入，如游戏画面）CNN
+    # - env：绑定的训练环境
+    # - verbose=1：打印训练过程中的日志信息
+    # - tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
+    model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs")
 
-# 保存训练好的模型到文件"ppo_mario"（会生成ppo_mario.zip等文件）
-model.save("ppo_mario")
+    # 开始训练模型，总共训练1000个时间步（timesteps）
+    model.learn(total_timesteps=10000000)
+
+    # 保存训练好的模型到文件"ppo_mario"（会生成ppo_mario.zip等文件）
+    model.save("ppo_mario")
+
+if __name__ == "__main__":
+    main()
