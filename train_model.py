@@ -1,5 +1,6 @@
 # 导入OpenAI Gym库，用于创建强化学习环境
 import gym
+from gym.wrappers import GrayScaleObservation
 # 从numpy导入shape（此处代码未实际使用，保留原导入）
 from numpy import shape
 # 从Stable Baselines3导入PPO算法（近端策略优化）
@@ -15,6 +16,8 @@ from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 env = gym_super_mario_bros.make('SuperMarioBros-v2')
 # 使用JoypadSpace包装环境，限制动作空间为SIMPLE_MOVEMENT（仅包含基本移动/跳跃动作）
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
+# 灰度图
+env = GrayScaleObservation(env, keep_dim=True)
 
 # 初始化PPO模型
 # 参数说明：

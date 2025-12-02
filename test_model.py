@@ -1,20 +1,14 @@
-# 导入OpenAI Gym库，用于创建强化学习环境
 import gym
-# 从numpy导入shape（此处代码未实际使用，保留原导入）
 from numpy import shape
-# 从Stable Baselines3导入PPO算法（近端策略优化）
 from stable_baselines3 import PPO
-# 导入NES游戏手柄输入包装器，用于处理游戏动作空间
 from nes_py.wrappers import JoypadSpace
-# 导入超级马里奥兄弟的Gym环境
 import gym_super_mario_bros
-# 导入简化版的马里奥动作空间（减少动作数量，降低训练复杂度）
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from gym.wrappers import GrayScaleObservation
 
-# 创建SuperMarioBros-v2版本的游戏环境
 env = gym_super_mario_bros.make('SuperMarioBros-v2')
-# 使用JoypadSpace包装环境，限制动作空间为SIMPLE_MOVEMENT（仅包含基本移动/跳跃动作）
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
+env = GrayScaleObservation(env, keep_dim=True)
 
 # 加载预训练好的PPO模型（文件名为"ppo_mario.zip"），并绑定到当前环境
 model = PPO.load("ppo_mario.zip", env=env)
@@ -27,7 +21,7 @@ for i in range(10000):
     obs = obs.copy()
     # 模型根据当前观测预测动作（deterministic=True表示使用确定性策略，输出最优动作）
     action, _ = model.predict(obs, deterministic=True)
-    # 执行预测的动作，获取新的观测、奖励、是否结束标志、额外信息
+    # 执行预测的动作，获取新的观测、奖励、是否结束标志、额外信息，返回下一帧
     obs, reward, done, info = env.step(action)
     # 渲染游戏画面，实时显示游戏过程
     env.render()
