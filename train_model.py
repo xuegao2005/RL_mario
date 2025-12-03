@@ -33,10 +33,12 @@ def main():
     # - verbose=1：打印训练过程中的日志信息
     # - tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
     model = PPO("CnnPolicy", env, verbose=1, tensorboard_log="logs",
-        n_steps = 2048,
-        batch_size = 2048,
-        n_epochs= 10,
-        ent_coef = 0.1,
+            learning_rate= 3e-4,
+            n_steps = 2048,
+            batch_size = 2048,
+            n_epochs= 10,
+            ent_coef = 0.1,
+            target_kl=0.1,
     )
 
     # 开始训练模型，总共训练1000个时间步（timesteps）
