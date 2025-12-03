@@ -12,7 +12,8 @@ import gym_super_mario_bros
 # 导入简化版的马里奥动作空间（减少动作数量，降低训练复杂度）
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from test_obs import make_env
-from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecFrameStack
+
 
 def main():
 
@@ -21,6 +22,9 @@ def main():
 
     # 多个子进程并行
     vec_env = SubprocVecEnv([make_env for _ in range(8)])
+
+    # 帧堆叠
+    vec_env = VecFrameStack(vec_env, 4, channels_order='last')
 
     # 初始化PPO模型
     # 参数说明：
