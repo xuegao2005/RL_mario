@@ -31,25 +31,37 @@ def main():
     eval_callback = EvalCallback(vec_env, best_model_save_path="./best_model/",
                                  log_path="./callback_logs/", eval_freq=10000//8)
 
+    model_params = {
+
+        'learning_rate' : 3e-4,  # 学习率：模型学得多快，太大容易学乱，太小学得慢
+        'n_steps' : 2048,  # 每个环境攒2048步数据再更新模型，内存不够就调小这个数
+        'batch_size' : 2048,  # 每次更新模型时一次喂多少数据，得是（环境数×n_steps）的倍数，不然显存扛不住
+        'ent_coef' : 0.1,  # 鼓励模型多尝试新动作的程度，越大越爱瞎试
+
+        'target_kl' : 0.2,  # 限制模型每次更新别太离谱，超过这个值就停更
+        'gamma' : 0.97,  # 模型看长远奖励的程度，越接近1越重视以后的奖励
+        'clip_range' : 0.2,  # 模型更新时的“刹车”，防止步子迈太大导致学崩
+        'n_epochs': 10,  # 同样的数据反复学10遍，学透点
+
+        # log
+        'tensorboard_log' : r'logs', # tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
+        'verbose' : 1, # verbose=1：打印训练过程中的日志信息
+        'policy' : "CnnPolicy", # CnnPolicy：使用卷积神经网络策略（适合处理图像类输入，如游戏画面）CNN
+    }
+
+
+
     # 初始化PPO模型
-    # 参数说明：
-    # - CnnPolicy：使用卷积神经网络策略（适合处理图像类输入，如游戏画面）CNN
     # - env：绑定的训练环境
-    # - verbose=1：打印训练过程中的日志信息
-    # - tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
-    model = PPO("CnnPolicy", vec_env, verbose=1, tensorboard_log="logs",
-                learning_rate = 3e-4,  # 学习率：模型学得多快，太大容易学乱，太小学得慢
-                n_steps = 2048,  # 每个环境攒2048步数据再更新模型，内存不够就调小这个数
-                batch_size = 2048,  # 每次更新模型时一次喂多少数据，得是（环境数×n_steps）的倍数，不然显存扛不住
-                n_epochs = 10,  # 同样的数据反复学10遍，学透点
-                ent_coef = 0.1,  # 鼓励模型多尝试新动作的程度，越大越爱瞎试
-                target_kl = 0.2,  # 限制模型每次更新别太离谱，超过这个值就停更
-                gamma = 0.97,  # 模型看长远奖励的程度，越接近1越重视以后的奖励
-                clip_range = 0.2,  # 模型更新时的“刹车”，防止步子迈太大导致学崩
-    )
+    model = PPO(env = vec_env, **model_params)
+
+    # 读取已有的权重，规定参数，第二轮训练，需要把上面一行注释才能运行！
+    # model = PPO.load('./best_model/best_model.zip', env = vec_env, **model_params)
+
+
 
     # 开始训练模型，总共训练1000个时间步（timesteps）
-    model.learn(total_timesteps=10000000)
+    model.learn(total_timesteps=10000000, callback=eval_callback)
 
     # 保存训练好的模型到文件"ppo_mario"（会生成ppo_mario.zip等文件）
     model.save("ppo_mario")
