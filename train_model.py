@@ -12,7 +12,6 @@ import gym_super_mario_bros
 # 导入简化版的马里奥动作空间（减少动作数量，降低训练复杂度）
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from stable_baselines3.common.callbacks import EvalCallback
-
 from test_obs import make_env
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecFrameStack
 
@@ -39,12 +38,14 @@ def main():
     # - verbose=1：打印训练过程中的日志信息
     # - tensorboard_log="logs"：将训练日志保存到logs目录，用于TensorBoard可视化
     model = PPO("CnnPolicy", vec_env, verbose=1, tensorboard_log="logs",
-            learning_rate= 1e-4,
-            n_steps = 2048,
-            batch_size = 8192,
-            n_epochs= 10,
-            ent_coef = 0.1,
-            target_kl=0.1,
+                learning_rate = 3e-4,  # 学习率：模型学得多快，太大容易学乱，太小学得慢
+                n_steps = 2048,  # 每个环境攒2048步数据再更新模型，内存不够就调小这个数
+                batch_size = 2048,  # 每次更新模型时一次喂多少数据，得是（环境数×n_steps）的倍数，不然显存扛不住
+                n_epochs = 10,  # 同样的数据反复学10遍，学透点
+                ent_coef = 0.1,  # 鼓励模型多尝试新动作的程度，越大越爱瞎试
+                target_kl = 0.2,  # 限制模型每次更新别太离谱，超过这个值就停更
+                gamma = 0.97,  # 模型看长远奖励的程度，越接近1越重视以后的奖励
+                clip_range = 0.2,  # 模型更新时的“刹车”，防止步子迈太大导致学崩
     )
 
     # 开始训练模型，总共训练1000个时间步（timesteps）
