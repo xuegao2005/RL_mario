@@ -16,7 +16,7 @@ def make_env():
     # 使用JoypadSpace包装环境，限制动作空间为SIMPLE_MOVEMENT（仅包含基本移动/跳跃动作）
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
-    # 应用跳帧包装器（SkipFrameWrapper），每8帧执行一次动作并重复该动作，减少计算量，跳帧可以加快训练/运行速度，同时保留关键游戏状态变化
+    # 应用跳帧包装器（SkipFrameWrapper），每4帧执行一次动作并重复该动作，减少计算量，跳帧可以加快训练/运行速度，同时保留关键游戏状态变化
     env = SkipFrameWrapper(env, skip=4)
 
     # 灰度图
@@ -27,6 +27,7 @@ def make_env():
 
     return env
 
+# 测试环境，不是在这运行游戏
 if __name__ == "__main__":
     env = make_env()
 
@@ -41,7 +42,6 @@ if __name__ == "__main__":
             state = env.reset()
 
         # 随机采样一个动作（env.action_space.sample()）并执行，获取新状态、奖励、结束标志、信息
-        # 这里使用随机动作仅作演示，实际训练/测试时会用模型预测的动作
         state, reward, done, info = env.step(env.action_space.sample())
 
         # 使用matplotlib显示当前游戏帧（状态），以灰度图形式展示
