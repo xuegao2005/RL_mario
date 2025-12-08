@@ -1,8 +1,8 @@
 setuptools==65.5.0
 wheel==0.38.4
 
-gym==0.21.0
-gym-super-mario-bros==7.3.0
+gym==0.21.0 # OpenAI 推出的强化学习环境标准库
+gym-super-mario-bros==7.3.0 # 基于 Gym 封装的 “超级马里奥兄弟” 游戏环境，把 NES（红白机）版马里奥转换成 AI 可交互的 Gym 环境
 
 tensorboard
 six
@@ -14,4 +14,4 @@ nes_py==8.2.1
 numpy==1.24.4
 
 shimmy>=2.0
-stable_baselines3==1.6.0
+stable_baselines3==1.6.0 # 强化学习库
